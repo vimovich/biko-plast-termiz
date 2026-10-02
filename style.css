@@ -156,7 +156,7 @@ h3{font-size:clamp(16px,1.25vw,19px);line-height:1.25}
 .hero__stat span{font-size:13px;color:rgba(255,255,255,.58)}
 .hero__ctrl{display:flex;align-items:center;gap:18px}
 .hero__dots{display:flex;gap:10px}
-.hero__dot{width:clamp(56px,6vw,90px);text-align:left;color:rgba(255,255,255,.55);font-size:12px;font-weight:700;transition:color .3s}
+.hero__dot{min-width:clamp(60px,6vw,92px);white-space:nowrap;text-align:left;color:rgba(255,255,255,.55);font-size:12px;font-weight:700;transition:color .3s}
 .hero__dot i{display:block;height:2px;background:rgba(255,255,255,.2);margin-bottom:8px;position:relative;overflow:hidden;border-radius:2px}
 .hero__dot i::after{content:"";position:absolute;inset:0;background:var(--sky);transform:scaleX(0);transform-origin:left}
 .hero__dot.active{color:#fff}
@@ -472,7 +472,7 @@ table.price{width:100%;border-collapse:collapse;min-width:720px}
 .wtypes{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .wtype{border-radius:var(--radius);overflow:hidden;background:#fff;border:1px solid var(--line);transition:all .5s var(--ease);display:flex;flex-direction:column}
 .wtype:hover{box-shadow:var(--shadow);transform:translateY(-6px)}
-.wtype__img{aspect-ratio:16/10;overflow:hidden}
+.wtype__img{aspect-ratio:16/9;overflow:hidden}
 .wtype__img img{width:100%;height:100%;object-fit:cover;transition:transform .9s var(--ease)}
 .wtype:hover .wtype__img img{transform:scale(1.06)}
 .wtype__body{padding:20px 22px 22px;display:flex;flex-direction:column;flex:1}
@@ -500,6 +500,12 @@ table.price{width:100%;border-collapse:collapse;min-width:720px}
 .city b{color:#fff;font-size:15.5px;display:block;margin-bottom:2px}
 .city span{font-size:13px;color:rgba(255,255,255,.55)}
 .city.home{border-color:var(--sky);background:rgba(90,162,255,.12)}
+.cities--light .city{border-color:var(--line);background:#fff}
+.cities--light .city b{color:var(--ink)}
+.cities--light .city span{color:var(--muted)}
+.cities--light .city:hover{border-color:var(--blue)}
+.cities--light .city.home{background:var(--ink);border-color:var(--ink)}
+.cities--light .city.home b{color:#fff}.cities--light .city.home span{color:rgba(255,255,255,.65)}
 .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 
 /* Footer */
