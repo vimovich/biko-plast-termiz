@@ -75,34 +75,44 @@
       walk(h);
     });
     hero.style.setProperty('--dur', DUR / 1000 + 's');
-    let cur = 0, timer, busy = false;
-    const show = (n, first) => {
-      if (busy && !first) return;
-      n = (n + slides.length) % slides.length;
-      if (n === cur && !first) return;
-      busy = true; setTimeout(() => busy = false, first ? 0 : 900);
-      slides.forEach(s => s.classList.remove('is-prev'));
-      if (!first) { slides[cur].classList.remove('active'); slides[cur].classList.add('is-prev'); texts[cur].classList.remove('active'); }
-      cur = n;
-      const s = slides[cur];
-      const img = $('img', s); if (img.loading === 'lazy') img.loading = 'eager';
-      void s.offsetWidth; s.classList.add('active');
-      setTimeout(() => texts[cur].classList.add('active'), first ? 50 : 350);
-      dots.forEach((d, i) => { d.classList.remove('active'); d.classList.toggle('done', i < cur); });
-      void dots[cur].offsetWidth; dots[cur].classList.add('active');
-      clearTimeout(timer); timer = setTimeout(() => show(cur + 1), DUR);
+    // Deterministic state machine: every change re-applies all classes from `cur`,
+    // autoplay is driven by an elapsed-time clock (pauses while tab hidden).
+    let cur = -1, prev = -1, lockUntil = 0, startedAt = 0, textTimer = 0, running = false;
+    const apply = () => {
+      slides.forEach((s, i) => { s.classList.toggle('active', i === cur); s.classList.toggle('is-prev', i === prev); });
+      dots.forEach((d, i) => { d.classList.toggle('done', i < cur); d.classList.remove('active'); });
+      if (dots[cur]) { void dots[cur].offsetWidth; dots[cur].classList.add('active'); }
+      texts.forEach(t => t.classList.remove('active'));
+      clearTimeout(textTimer);
+      const target = cur;
+      textTimer = setTimeout(() => texts.forEach((t, i) => t.classList.toggle('active', i === target)), prev < 0 ? 60 : 380);
     };
-    // preload next images after load
-    window.addEventListener('load', () => slides.forEach(s => { const i = $('img', s); i.loading = 'eager'; }));
+    const show = (n, force) => {
+      const now = performance.now();
+      if (!force && now < lockUntil) return;
+      n = (n + slides.length) % slides.length;
+      if (n === cur) return;
+      const img = $('img', slides[n]); if (img && img.loading === 'lazy') img.loading = 'eager';
+      prev = cur; cur = n; lockUntil = now + 950; startedAt = now;
+      // restart wipe animation on the incoming slide
+      slides[cur].classList.remove('active'); void slides[cur].offsetWidth;
+      apply();
+    };
+    const tick = now => {
+      if (!document.hidden && cur >= 0 && now - startedAt >= DUR) show(cur + 1, true);
+      requestAnimationFrame(tick);
+    };
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) startedAt = performance.now(); });
+    window.addEventListener('load', () => slides.forEach(s => { const i = $('img', s); if (i) i.loading = 'eager'; }));
     $('.hero__next', hero).addEventListener('click', () => show(cur + 1));
     $('.hero__prev', hero).addEventListener('click', () => show(cur - 1));
     dots.forEach((d, i) => d.addEventListener('click', () => show(i)));
     let sx = 0;
     hero.addEventListener('touchstart', e => sx = e.touches[0].clientX, { passive: true });
     hero.addEventListener('touchend', e => { const d = e.changedTouches[0].clientX - sx; if (Math.abs(d) > 60) show(cur + (d < 0 ? 1 : -1)); });
-    document.addEventListener('visibilitychange', () => { if (document.hidden) clearTimeout(timer); else { clearTimeout(timer); timer = setTimeout(() => show(cur + 1), DUR); } });
-    const start = () => show(0, true);
+    const start = () => { if (running) return; running = true; show(0, true); requestAnimationFrame(tick); };
     if (pre) document.addEventListener('site:ready', start, { once: true }); else start();
+    setTimeout(start, 3500); // safety net
   }
 
   /* ---------- Reveal ---------- */
