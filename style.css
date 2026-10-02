@@ -509,3 +509,5 @@ img.broken{opacity:0}
   .tile{padding:34px 26px;min-height:0}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+.cat__num{background:rgba(10,18,32,.55);padding:4px 10px;border-radius:100px;backdrop-filter:blur(6px)}
+.cat__go{background:rgba(10,18,32,.45)}
